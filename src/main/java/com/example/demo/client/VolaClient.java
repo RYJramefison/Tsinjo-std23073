@@ -19,7 +19,7 @@ public class VolaClient {
     String url =
         String.format(
             "%s/payment?apiKey=%s&payerEmail=%s&pspType=ORANGE_MONEY&pspPaymentId=%s",
-            baseUrl, apiKey, donation.getDonorEmail(), donation.getPspPaymentId());
+            baseUrl, apiKey, donation.getDonor().getEmail(), donation.getPayment().getId());
     restTemplate.postForEntity(url, null, String.class);
   }
 
@@ -27,7 +27,7 @@ public class VolaClient {
     String url =
         String.format(
             "%s/payment?apiKey=%s&payerEmail=%s&pspType=ORANGE_MONEY&pspPaymentId=%s",
-            baseUrl, apiKey, donation.getDonorEmail(), donation.getPspPaymentId());
+            baseUrl, apiKey, donation.getDonor().getEmail(), donation.getPayment().getId());
     PaymentResponse response = restTemplate.getForObject(url, PaymentResponse.class);
     return response.getVerificationStatus();
   }

@@ -3,9 +3,10 @@ package com.example.demo.service;
 import com.example.demo.client.VolaClient;
 import com.example.demo.entity.Donation;
 import com.example.demo.entity.Help;
+import com.example.demo.entity.Payment;
 import com.example.demo.repository.TsinjoRepository;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executors;
@@ -32,8 +33,16 @@ public class TsinjoService {
 
   public void createDonation(Donation donation) throws SQLException {
     donation.setId(UUID.randomUUID().toString());
-    donation.setDatePaiement(LocalDateTime.now());
-    donation.setStatus("VERIFYING");
+
+    // Initialiser Payment si null
+    if (donation.getPayment() == null) {
+      donation.setPayment(new Payment());
+    }
+
+    donation.getPayment().setId(UUID.randomUUID().toString());
+    donation.getPayment().setDate(Instant.now());
+    donation.getPayment().setStatus("VERIFYING");
+
     repository.saveDonation(donation);
 
     // Appeler Vola
@@ -44,9 +53,9 @@ public class TsinjoService {
         () -> {
           String currentStatus = volaClient.getPaymentStatus(donation);
           if (!"VERIFYING".equals(currentStatus)) {
-            donation.setStatus(currentStatus);
+            donation.getPayment().setStatus(currentStatus);
             try {
-              repository.updateDonationStatus(donation.getId(), currentStatus);
+              repository.updateDonationStatus(donation.getPayment().getId(), currentStatus);
             } catch (SQLException e) {
               throw new RuntimeException(e);
             }
